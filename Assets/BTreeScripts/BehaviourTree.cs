@@ -21,23 +21,6 @@ public class BehaviourTree : Node
         return children[currentChild].Process();
     }
 
-    public void PrintTree1()
-    {
-        Debug.Log(name + "{");
-        foreach (Node node in children)
-        {
-            if (node.children.Any())
-            {
-                Debug.Log(node.PrintChildren());
-            }
-            else
-            {
-                Debug.Log(node.name);
-            }
-        }
-        Debug.Log("}");
-    }
-
     struct NodeLevel
     {
         public int level;

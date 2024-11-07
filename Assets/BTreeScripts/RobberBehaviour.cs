@@ -9,6 +9,9 @@ public class RobberBehaviour : MonoBehaviour
     NavMeshAgent agent;
     public GameObject diamond;
     public GameObject van;
+    public GameObject backDoor;
+
+    Node.Status treeStatus = Node.Status.RUNNING;
 
     public enum ActionState { IDLE, WORKING };
 
@@ -19,23 +22,32 @@ public class RobberBehaviour : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
 
         tree = new BehaviourTree();
-        Node steal = new Node("Steal Something.");
+        Sequence steal = new Sequence("Steal Something.");
         Leaf goToDiamond = new Leaf("Go To Diamond.", GoToDiamond);
+        Leaf goToBackDoor = new Leaf("Go To Back Door.", GoToBackDoor);
         Leaf goToVan = new Leaf("Go To Van.", GoToVan);
 
+        steal.AddChild(goToBackDoor);
         steal.AddChild(goToDiamond);
+        steal.AddChild(goToBackDoor);
         steal.AddChild(goToVan);
         tree.AddChild(steal);
 
         tree.PrintTree();
 
-        tree.Process();
+    }
+
+    private void Update()
+    {
+        if(treeStatus==Node.Status.RUNNING) treeStatus = tree.Process();
     }
 
     Node.Status GoToLocation(Vector3 destination)
     {
+
         float distanceToTarget = Vector3.Distance(destination, transform.position);
-        if(state == ActionState.IDLE)
+
+        if (state == ActionState.IDLE)
         {
             agent.SetDestination(destination);
             state = ActionState.WORKING;
@@ -61,5 +73,10 @@ public class RobberBehaviour : MonoBehaviour
     public Node.Status GoToVan()
     {
         return GoToLocation(van.transform.position);
+    }
+
+    public Node.Status GoToBackDoor()
+    {
+        return GoToLocation(backDoor.transform.position);
     }
 }

@@ -27,24 +27,4 @@ public class Node
     {
         return children[currentChild].Process();
     }
-
-    public string PrintChildren()
-    {
-        string childrenString = "";
-        childrenString += name + "{";
-        foreach (Node node in children)
-        {
-            if (node.children.Any())
-            {
-                childrenString += node.PrintChildren();
-            }
-            else
-            {
-                childrenString += node.name;
-            }
-            childrenString += " ";
-        }
-        childrenString += "}";
-        return childrenString;
-    }
 }
