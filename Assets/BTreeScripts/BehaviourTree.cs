@@ -16,6 +16,11 @@ public class BehaviourTree : Node
         name = n;
     }
 
+    public override Status Process()
+    {
+        return children[currentChild].Process();
+    }
+
     public void PrintTree1()
     {
         Debug.Log(name + "{");
