@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +11,7 @@ public class RobberBehaviour : MonoBehaviour
     public GameObject diamond;
     public GameObject van;
     public GameObject backDoor;
+    public GameObject frontDoor;
 
     Node.Status treeStatus = Node.Status.RUNNING;
 
@@ -26,15 +28,25 @@ public class RobberBehaviour : MonoBehaviour
         Leaf goToDiamond = new Leaf("Go To Diamond.", GoToDiamond);
         Leaf goToBackDoor = new Leaf("Go To Back Door.", GoToBackDoor);
         Leaf goToVan = new Leaf("Go To Van.", GoToVan);
+        Leaf goToFrontDoor = new Leaf("Go To Front Door.", GoToFrontDoor);
+        Selector openDoor = new Selector("Open Door.");
 
-        steal.AddChild(goToBackDoor);
+        openDoor.AddChild(goToBackDoor);
+        openDoor.AddChild(goToFrontDoor);
+
+        steal.AddChild(openDoor);
         steal.AddChild(goToDiamond);
-        steal.AddChild(goToBackDoor);
         steal.AddChild(goToVan);
+
         tree.AddChild(steal);
 
         tree.PrintTree();
 
+    }
+
+    private Node.Status GoToFrontDoor()
+    {
+        return GoToLocation(frontDoor.transform.position);
     }
 
     private void Update()
