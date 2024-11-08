@@ -19,12 +19,16 @@ public class RobberBehaviour : MonoBehaviour
 
     ActionState state = ActionState.IDLE;
 
+    [Range(0, 1000)]
+    public int money = 800;
+
     private void Start()
     {
         agent = GetComponent<NavMeshAgent>();
 
         tree = new BehaviourTree();
         Sequence steal = new Sequence("Steal Something.");
+        Leaf hasGotMoney = new Leaf("Has Got Money.", HasMoney);
         Leaf goToDiamond = new Leaf("Go To Diamond.", GoToDiamond);
         Leaf goToBackDoor = new Leaf("Go To Back Door.", GoToBackDoor);
         Leaf goToVan = new Leaf("Go To Van.", GoToVan);
@@ -34,6 +38,7 @@ public class RobberBehaviour : MonoBehaviour
         openDoor.AddChild(goToBackDoor);
         openDoor.AddChild(goToFrontDoor);
 
+        steal.AddChild(hasGotMoney);
         steal.AddChild(openDoor);
         steal.AddChild(goToDiamond);
         steal.AddChild(goToVan);
@@ -46,12 +51,12 @@ public class RobberBehaviour : MonoBehaviour
 
     private Node.Status GoToFrontDoor()
     {
-        return GoToLocation(frontDoor.transform.position);
+        return GoToDoor(frontDoor);
     }
 
     private void Update()
     {
-        if(treeStatus==Node.Status.RUNNING) treeStatus = tree.Process();
+        if(treeStatus!=Node.Status.SUCCESS) treeStatus = tree.Process();
     }
 
     Node.Status GoToLocation(Vector3 destination)
@@ -79,16 +84,57 @@ public class RobberBehaviour : MonoBehaviour
 
     public Node.Status GoToDiamond()
     {
+        Node.Status s = GoToLocation(diamond.transform.position);
+
+        if (s == Node.Status.SUCCESS)
+        {
+            diamond.transform.parent = transform;
+        }
+
         return GoToLocation(diamond.transform.position);
+    }
+
+    public Node.Status GoToDoor(GameObject door)
+    {
+        Node.Status s = GoToLocation(diamond.transform.position);
+
+        if(s == Node.Status.SUCCESS)
+        {
+            if (!door.GetComponent<Lock>().isLocked)
+            {
+                door.SetActive(false);
+                return Node.Status.SUCCESS;
+            }
+            return Node.Status.FALURE;
+        }
+        else
+        {
+            return s;
+        }
     }
 
     public Node.Status GoToVan()
     {
-        return GoToLocation(van.transform.position);
+        Node.Status s = GoToLocation(van.transform.position);
+
+        if (s == Node.Status.SUCCESS)
+        {
+            money += 300;
+            diamond.SetActive(false);
+        }
+
+        return GoToLocation(diamond.transform.position);
     }
 
     public Node.Status GoToBackDoor()
     {
-        return GoToLocation(backDoor.transform.position);
+        return GoToDoor(backDoor);
+    }
+
+    public Node.Status HasMoney()
+    {
+        if (money >= 500)
+            return Node.Status.FALURE;
+        return Node.Status.SUCCESS;
     }
 }
