@@ -35,8 +35,8 @@ public class RobberBehaviour : MonoBehaviour
         Leaf goToFrontDoor = new Leaf("Go To Front Door.", GoToFrontDoor);
         Selector openDoor = new Selector("Open Door.");
 
-        openDoor.AddChild(goToBackDoor);
         openDoor.AddChild(goToFrontDoor);
+        openDoor.AddChild(goToBackDoor);
 
         steal.AddChild(hasGotMoney);
         steal.AddChild(openDoor);
@@ -47,11 +47,6 @@ public class RobberBehaviour : MonoBehaviour
 
         tree.PrintTree();
 
-    }
-
-    private Node.Status GoToFrontDoor()
-    {
-        return GoToDoor(frontDoor);
     }
 
     private void Update()
@@ -96,19 +91,23 @@ public class RobberBehaviour : MonoBehaviour
 
     public Node.Status GoToDoor(GameObject door)
     {
+        Debug.Log("Checking Door " + door.name);
         Node.Status s = GoToLocation(diamond.transform.position);
 
         if(s == Node.Status.SUCCESS)
         {
             if (!door.GetComponent<Lock>().isLocked)
             {
+                Debug.Log("Door is unlocked");
                 door.SetActive(false);
                 return Node.Status.SUCCESS;
             }
+            Debug.Log("Door is locked");
             return Node.Status.FALURE;
         }
         else
         {
+            Debug.Log("Error");
             return s;
         }
     }
@@ -129,6 +128,11 @@ public class RobberBehaviour : MonoBehaviour
     public Node.Status GoToBackDoor()
     {
         return GoToDoor(backDoor);
+    }
+
+    private Node.Status GoToFrontDoor()
+    {
+        return GoToDoor(frontDoor);
     }
 
     public Node.Status HasMoney()
